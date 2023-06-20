@@ -1,4 +1,4 @@
-# Pillar Two implementation globe
+# Tax globe
 
 3D globe for OECD implementation data
 
