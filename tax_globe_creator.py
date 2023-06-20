@@ -9,19 +9,20 @@ import io
 import numpy as np
 
 # dataset = "CRS"
-dataset = "PillarTwo"
+# dataset = "PillarTwo"
+dataset = "WealthTax"
 
-make_gif = True
+make_gif = False
 gif_frames = 120
 geo_resolution = 110 # high res is 110,  # or 50 for low res
 
-unclassified_color = "#DDDDDD"
+
 
 dataset_info = {
     "CRS": {
         "categories": {
             None: {
-                'color': unclassified_color,
+                'color': "#DDDDDD",
                 'description': 'Not committed'
             },
             2017: {'color': 'lightgreen', 
@@ -55,13 +56,14 @@ dataset_info = {
                 'description': 'Exchanging from 2026'
             },
         }, 
-        "column": 'CRS commitment year'
+        "column": 'CRS commitment year',
+        "default_color": "#DDDDDD"
     },
     
     "PillarTwo": {
         "categories": {
             None: {
-                'color': unclassified_color,
+                'color': "#DDDDDD",
                 'description': 'Not participating'
             },
             "EU": {
@@ -89,9 +91,30 @@ dataset_info = {
                 'description': 'Signatory to OECD statement'
             }, # Honeydew
         },
-        "column": 'Pillar Two'
+        "column": 'Pillar Two',
+        "default_color": "#DDDDDD"
+    },
+    
+    "WealthTax": {
+        "categories": {
+            "OECD": {
+                'color': '#F24C3D', 
+                'description': 'Wealth tax (OECD country)'
+            },
+            "Developing": {
+                'color': '#D7C0AE', 
+                'description': 'Wealth tax (developing country)'
+            },
+            None: {
+                'color': "#9BABB8",
+                'description': 'No wealth tax'
+            }
+        },
+        "column": 'Wealth tax',
+        "default_color": "#9BABB8"
     }
 }
+
 
 initial_countries = {}
 all_countries = {}
@@ -126,7 +149,7 @@ def add_country_to_dict(country, iso_a3, name, all_countries, initial=False):
         all_countries[iso_a3] = {
             'name': name, 
             'shape_data': [(lon, lat)], 
-            'color': hex_to_rgba(unclassified_color, 10),
+            'color': hex_to_rgba(dataset_info[dataset]['default_color'], 10),
             'dataset_specific_data': None
         }
     elif country['geometry'].geom_type == 'MultiPolygon':
@@ -139,7 +162,7 @@ def add_country_to_dict(country, iso_a3, name, all_countries, initial=False):
         all_countries[iso_a3] = {
             'name': name, 
             'shape_data': shape_data, 
-            'color': hex_to_rgba(unclassified_color, 10),
+            'color': hex_to_rgba(dataset_info[dataset]['default_color'], 10),
             'dataset_specific_data': None
         }
 
@@ -149,7 +172,7 @@ def update_country_geometry(region_data, region_code, region_name, all_countries
         region_geo = region_data.iloc[0]['geometry']
         all_countries[region_code] = {'name': region_name,
                                       'shape_data': [],
-                                      'color': hex_to_rgba(unclassified_color, 10),
+                                      'color': hex_to_rgba(dataset_info[dataset]['default_color'], 10),
                                       'dataset_specific_data': None}
         polygons = [region_geo] if region_geo.geom_type == 'Polygon' else region_geo.geoms
         for polygon in polygons:
@@ -224,10 +247,10 @@ def create_legend():
     # Define the gap between legend items
     legend_y_gap = 0.03
     
-    # gap between colour and text
+    # gap between color and text
     text_gap = 0.02  
     
-    # colour box size
+    # color box size
     color_box_size = 0.015
 
     # Define the position of color box relative to the legend text
@@ -251,7 +274,7 @@ def create_legend():
                                         color='white'),
                                 showarrow=False))
 
-        # colours
+        # colors
         shapes.append(dict(type="rect",
                         xref="paper", yref="paper",
                         x0=legend_x_start, y0=legend_y_start-i*legend_y_gap + 0.010,
@@ -301,7 +324,7 @@ def create_globe():
         coastlinecolor='rgb(173, 216, 230)',
         coastlinewidth=5,
         lakecolor='rgb(0, 119, 190)',
-        countrycolor=hex_to_rgba(unclassified_color, 10),
+        countrycolor=hex_to_rgba(dataset_info[dataset]['default_color'], 10),
         projection_type="orthographic",
     )
 
